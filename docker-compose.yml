@@ -2,7 +2,7 @@ version: "3.8"
 
 services:
   nominatim:
-    image: mediagis/nominatim:5.1
+    image: mediagis/nominatim:5.0
     container_name: nominatim
     environment:
       # Import Cambodia data on first start
@@ -18,10 +18,10 @@ services:
     restart: unless-stopped
     # Uncomment the volumes below if you want data to persist across restarts
     # (paths may vary by image version; consult image docs if needed)
-    volumes:
-      - nominatim-data:/var/lib/postgresql
-      - nominatim-cache:/var/lib/nominatim
+#     volumes:
+#       - nominatim-data:/var/lib/postgresql
+#       - nominatim-cache:/var/lib/nominatim
 
-volumes:
-  nominatim-data:
-  nominatim-cache:
+# volumes:
+#   nominatim-data:
+#   nominatim-cache:
