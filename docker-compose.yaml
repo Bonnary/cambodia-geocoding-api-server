@@ -6,7 +6,7 @@ services:
     environment:
       - PBF_URL=https://download.geofabrik.de/asia/cambodia-latest.osm.pbf
     ports:
-      - "8080:8080"
+      - "3000:8080"
     volumes:
       - nominatim-data:/var/lib/postgresql/14/main
     restart: unless-stopped
