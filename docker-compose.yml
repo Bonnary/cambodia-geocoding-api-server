@@ -2,7 +2,7 @@ version: "3.8"
 
 services:
   nominatim:
-    image: mediagis/nominatim:5.1
+    image: mediagis/nominatim:5.0
     container_name: nominatim
     environment:
       PBF_URL: https://download.geofabrik.de/asia/cambodia-latest.osm.pbf
