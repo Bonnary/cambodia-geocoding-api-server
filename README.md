@@ -8,9 +8,9 @@ This repository contains the necessary files to build and run a local Nominatim 
 
 ## How to Use
 
-You can either build the Docker image yourself or use a platform like Coolify to build and deploy it from this repository.
+You can either use Docker Compose to run the service locally or use a platform like Coolify to deploy it from this repository.
 
-### Building the Docker Image
+### Using Docker Compose
 
 1.  **Clone the repository:**
     ```bash
@@ -18,27 +18,39 @@ You can either build the Docker image yourself or use a platform like Coolify to
     cd cambodia-geocoding-api-server
     ```
 
-2.  **Build the image:**
+2.  **Start the service:**
     From the root of the repository, run the following command:
     ```bash
-    docker build -t cambodia-nominatim .
+    docker-compose up -d
     ```
-    This will create a Docker image named `cambodia-nominatim` on your local machine.
+    This will download the necessary Docker image and start the Nominatim service in the background.
 
-### Running the Docker Container
+### Running the Service
 
-1.  **Start the container:**
+1.  **Check the service status:**
     ```bash
-    docker run -p 8080:8080 --name nominatim cambodia-nominatim
+    docker-compose ps
     ```
-    This command starts a container named `nominatim` and maps port 8080 on your host to port 8080 in the container.
+    This command shows the status of the running services.
 
 2.  **Wait for Nominatim to initialize:**
     The first time you run the container, Nominatim needs to import and process the OpenStreetMap data for Cambodia. This process can take a significant amount of time (30 minutes to a few hours depending on your machine's performance). You can monitor the progress by viewing the container's logs:
     ```bash
-    docker logs -f nominatim
+    docker-compose logs -f nominatim
     ```
     Wait until you see messages indicating that the server is ready to accept connections.
+
+3.  **Stop the service:**
+    ```bash
+    docker-compose down
+    ```
+    This command stops and removes the containers.
+
+4.  **Stop and remove all data:**
+    ```bash
+    docker-compose down -v
+    ```
+    This command stops the containers and removes the associated volumes (use with caution as this will delete all imported data).
 
 ### Using the Geocoding API
 
@@ -102,5 +114,5 @@ If you are using Coolify:
 1.  Connect your Coolify instance to your GitHub account.
 2.  Create a new "Application" in Coolify.
 3.  Select this repository.
-4.  Coolify will automatically detect the `Dockerfile` and build and deploy the application for you.
+4.  Coolify will automatically detect the `docker-compose.yml` file and deploy the application for you.
 5.  Coolify will assign a public URL to your running application.
