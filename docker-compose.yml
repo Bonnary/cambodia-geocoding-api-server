@@ -1,0 +1,24 @@
+version: "3.8"
+
+services:
+  nominatim:
+    image: mediagis/nominatim:5.1
+    container_name: nominatim
+    environment:
+      # Import Cambodia data on first start
+      PBF_URL: https://download.geofabrik.de/asia/cambodia-latest.osm.pbf
+    ports:
+      - "3030:8080"
+    # Equivalent of `-it` in docker run
+    tty: true
+    stdin_open: true
+    restart: unless-stopped
+    # Uncomment the volumes below if you want data to persist across restarts
+    # (paths may vary by image version; consult image docs if needed)
+    # volumes:
+    #   - nominatim-data:/var/lib/postgresql
+    #   - nominatim-cache:/var/lib/nominatim
+
+# volumes:
+#   nominatim-data:
+#   nominatim-cache:
