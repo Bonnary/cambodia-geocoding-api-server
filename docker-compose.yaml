@@ -1,17 +1,53 @@
 version: '3.8'
 
 services:
+  db:
+    image: postgis/postgis:15-3.3
+    environment:
+      POSTGRES_DB: nominatim
+      POSTGRES_USER: nominatim
+      POSTGRES_PASSWORD: very-secure-password
+      POSTGRES_HOST_AUTH_METHOD: trust
+    volumes:
+      - nominatim_db:/var/lib/postgresql/data
+    shm_size: 1gb
+    command: >
+      postgres
+      -c max_connections=200
+      -c shared_buffers=2GB
+      -c effective_cache_size=6GB
+      -c maintenance_work_mem=1GB
+      -c checkpoint_completion_target=0.9
+      -c wal_buffers=16MB
+      -c default_statistics_target=100
+      -c random_page_cost=1.1
+      -c effective_io_concurrency=200
+      -c work_mem=50MB
+      -c min_wal_size=1GB
+      -c max_wal_size=4GB
+    restart: unless-stopped
+
   nominatim:
     build: .
-    container_name: nominatim
-    ports:
-      - "3000:8080"
+    depends_on:
+      - db
     environment:
-      - PBF_URL=https://download.geofabrik.de/asia/cambodia-latest.osm.pbf
-    restart: unless-stopped
-    # Add volume for persistent data (optional but recommended)
+      NOMINATIM_DATABASE_DSN: pgsql:host=db;port=5432;user=nominatim;password=very-secure-password;dbname=nominatim
+      NOMINATIM_PASSWORD: very-secure-password
+      NOMINATIM_IMPORT_STYLE: admin
+      NOMINATIM_REPLICATION_URL: https://download.geofabrik.de/asia/cambodia-updates/
     volumes:
-      - nominatim_data:/var/lib/postgresql/14/main
+      - nominatim_data:/nominatim/data
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/status"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 300s
 
 volumes:
+  nominatim_db:
   nominatim_data:
