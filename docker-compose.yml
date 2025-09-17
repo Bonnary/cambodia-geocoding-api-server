@@ -15,10 +15,10 @@ services:
     restart: unless-stopped
     # Uncomment the volumes below if you want data to persist across restarts
     # (paths may vary by image version; consult image docs if needed)
-    # volumes:
-    #   - nominatim-data:/var/lib/postgresql
-    #   - nominatim-cache:/var/lib/nominatim
+    volumes:
+      - nominatim-data:/var/lib/postgresql
+      - nominatim-cache:/var/lib/nominatim
 
-# volumes:
-#   nominatim-data:
-#   nominatim-cache:
+volumes:
+  nominatim-data:
+  nominatim-cache:
