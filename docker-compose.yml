@@ -7,7 +7,7 @@ services:
     environment:
       PBF_URL: https://download.geofabrik.de/asia/cambodia-latest.osm.pbf
     ports:
-      - "3030:8080"
+      - "80:8080"
     # # Equivalent of `-it` in docker run
     # tty: true
     # stdin_open: true
