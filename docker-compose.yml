@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  cambodia-nominatim:
+    build: .
+    container_name: cambodia-geocoding-api
+    ports:
+      - "8080:8080"
+    environment:
+      - PBF_URL=https://download.geofabrik.de/asia/cambodia-latest.osm.pbf
+      - NOMINATIM_PASSWORD=nominatim
+      - NOMINATIM_UPDATE_MODE=none
+      - POSTGRES_USER=nominatim
+      - POSTGRES_DB=nominatim
+    volumes:
+      # Persist the database data
+      - nominatim_data:/var/lib/postgresql/data
+      # Persist the imported data
+      - nominatim_flatnode:/app/flatnode
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/status"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 300s
+
+volumes:
+  nominatim_data:
+  nominatim_flatnode:
