@@ -39,7 +39,7 @@ services:
     volumes:
       - nominatim_data:/nominatim/data
     ports:
-      - "8080:8080"
+      - "3000:8080"
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/status"]
