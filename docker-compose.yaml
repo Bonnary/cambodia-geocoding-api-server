@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  nominatim:
+    build: .
+    container_name: nominatim
+    ports:
+      - "3000:8080"
+    environment:
+      - PBF_URL=https://download.geofabrik.de/asia/cambodia-latest.osm.pbf
+    restart: unless-stopped
+    # Add volume for persistent data (optional but recommended)
+    volumes:
+      - nominatim_data:/var/lib/postgresql/14/main
+
+volumes:
+  nominatim_data:

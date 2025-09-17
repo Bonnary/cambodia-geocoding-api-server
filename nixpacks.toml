@@ -1,8 +1,0 @@
-# nixpacks.toml
-
-# Define environment variables. This is the equivalent of the `-e` flag.
-[variables]
-PBF_URL = "https://download.geofabrik.de/asia/cambodia-latest.osm.pbf"
-
-# Expose port 8080 from the container. This is handled by the `-p` flag in docker run.
-ports = ["8080"]
