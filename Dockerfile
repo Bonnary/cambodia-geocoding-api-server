@@ -1,20 +1,11 @@
-# Cambodia Geocoding API Server
-# Based on Nominatim with Cambodia OSM data
-
+# Use the mediagis/nominatim image as the base
 FROM mediagis/nominatim:5.1
 
-# Set the default PBF URL for Cambodia
+# Set the environment variable for the PBF URL for Cambodia
 ENV PBF_URL=https://download.geofabrik.de/asia/cambodia-latest.osm.pbf
 
-# Set default Nominatim configuration
-ENV NOMINATIM_PASSWORD=nominatim
-ENV NOMINATIM_UPDATE_MODE=none
-ENV POSTGRES_USER=nominatim
-ENV POSTGRES_DB=nominatim
-
-# Expose the port
+# Expose the port the Nominatim service runs on
+# The original command maps host 8080 to container 8080, 
+# but the image actually exposes port 8080 by default.
+# We make it explicit here.
 EXPOSE 8080
-
-# Set the default entrypoint and command
-# The base image already handles the download and import of OSM data
-CMD ["/app/start.sh"]

@@ -1,98 +1,67 @@
 # Cambodia Geocoding API Server
 
-A containerized Nominatim-based geocoding API server specifically configured for Cambodia using OpenStreetMap data.
+This repository contains the necessary files to build and run a local Nominatim server for geocoding addresses in Cambodia. It uses data from OpenStreetMap.
 
-## Overview
+## Prerequisites
 
-This project provides a ready-to-deploy geocoding API server for Cambodia using:
-- **Nominatim**: Open-source geocoding engine
-- **Cambodia OSM Data**: Latest OpenStreetMap data from Geofabrik
-- **Docker**: Containerized for easy deployment
-- **Coolify Compatible**: Ready for deployment on Coolify servers
+- [Docker](https://www.docker.com/get-started) must be installed on your machine.
 
-## Features
+## How to Use
 
-- 🇰🇭 **Cambodia-specific**: Pre-configured with Cambodia OSM data
-- 🚀 **Easy deployment**: One-command setup with Docker
-- 🔄 **Auto-updates**: Configurable data update modes
-- 🏥 **Health checks**: Built-in monitoring endpoints
-- 📍 **Full geocoding**: Forward and reverse geocoding support
-- 🔍 **Search capabilities**: Address search and place lookup
+You can either build the Docker image yourself or use a platform like Coolify to build and deploy it from this repository.
 
-## Quick Start
+### Building the Docker Image
 
-### Option 1: Docker Compose (Recommended)
+1.  **Clone the repository:**
+    ```bash
+    git clone https://github.com/Bonnary/cambodia-geocoding-api-server.git
+    cd cambodia-geocoding-api-server
+    ```
+
+2.  **Build the image:**
+    From the root of the repository, run the following command:
+    ```bash
+    docker build -t cambodia-nominatim .
+    ```
+    This will create a Docker image named `cambodia-nominatim` on your local machine.
+
+### Running the Docker Container
+
+1.  **Start the container:**
+    ```bash
+    docker run -p 8080:8080 --name nominatim cambodia-nominatim
+    ```
+    This command starts a container named `nominatim` and maps port 8080 on your host to port 8080 in the container.
+
+2.  **Wait for Nominatim to initialize:**
+    The first time you run the container, Nominatim needs to import and process the OpenStreetMap data for Cambodia. This process can take a significant amount of time (30 minutes to a few hours depending on your machine's performance). You can monitor the progress by viewing the container's logs:
+    ```bash
+    docker logs -f nominatim
+    ```
+    Wait until you see messages indicating that the server is ready to accept connections.
+
+### Using the Geocoding API
+
+Once the server is running, you can send requests to it.
+
+**Example: Forward Geocoding (Search for a place)**
+
+To search for "Phnom Penh", you can use `curl` or your web browser:
 
 ```bash
-# Clone the repository
-git clone <your-repo-url>
-cd cambodia-geocoding-api-server
-
-# Start the service
-docker-compose up -d
+curl "http://localhost:8080/search?q=Phnom+Penh&format=json"
 ```
 
-### Option 2: Docker Build & Run
+**Example: Reverse Geocoding (Find address for coordinates)**
+
+To find the address for latitude `11.5475456` and longitude `104.8171284`:
 
 ```bash
-# Build the image
-docker build -t cambodia-geocoding .
-
-# Run the container
-docker run -d -p 8080:8080 --name cambodia-geocoding cambodia-geocoding
-```
-
-### Option 3: Original Docker Command
-
-```bash
-docker run -it -e PBF_URL=https://download.geofabrik.de/asia/cambodia-latest.osm.pbf -p 8080:8080 --name nominatim mediagis/nominatim:5.1
-```
-
-## Deployment on Coolify
-
-### Method 1: Docker Compose Deployment
-
-1. **Create a new project** in Coolify
-2. **Add a new application** → Choose "Docker Compose"
-3. **Connect your Git repository** containing this code
-4. **Set the compose file path** to `docker-compose.yml`
-5. **Deploy** the application
-
-### Method 2: Dockerfile Deployment
-
-1. **Create a new project** in Coolify
-2. **Add a new application** → Choose "Dockerfile"
-3. **Connect your Git repository**
-4. **Set these environment variables**:
-   - `PBF_URL=https://download.geofabrik.de/asia/cambodia-latest.osm.pbf`
-5. **Set port mapping**: `8080:8080`
-6. **Deploy** the application
-
-## API Usage
-
-Once deployed, the API will be available at `http://your-server:8080`
-
-### Health Check
-```bash
-curl http://localhost:8080/status
-```
-
-### Forward Geocoding (Address → Coordinates)
-```bash
-# Search for a place in Cambodia
-curl "http://localhost:8080/search?q=Phnom+Penh&format=json&limit=1"
-
-# Search with more specific parameters
-curl "http://localhost:8080/search?q=Royal+Palace+Phnom+Penh&format=json&countrycodes=kh"
-```
-
-### Reverse Geocoding (Coordinates → Address)
-```bash
-# Get address from coordinates 
 curl "http://localhost:8080/reverse?format=json&lat=11.5475456&lon=104.8171284"
 ```
 
-### Example Response
+Example output:
+
 ```json
 {
     "place_id": 216238,
@@ -126,106 +95,12 @@ curl "http://localhost:8080/reverse?format=json&lat=11.5475456&lon=104.8171284"
 }
 ```
 
-## Configuration
+## Deployment to Coolify
 
-### Environment Variables
+If you are using Coolify:
 
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `PBF_URL` | Cambodia OSM data | URL to OSM PBF file |
-| `NOMINATIM_PASSWORD` | `nominatim` | Database password |
-| `NOMINATIM_UPDATE_MODE` | `none` | Update mode (none/once/continuous) |
-| `POSTGRES_USER` | `nominatim` | PostgreSQL username |
-| `POSTGRES_DB` | `nominatim` | PostgreSQL database name |
-
-### Custom OSM Data
-
-To use different OSM data, set the `PBF_URL` environment variable:
-
-```bash
-# For a different region
-docker run -e PBF_URL=https://download.geofabrik.de/asia/thailand-latest.osm.pbf ...
-
-# For a smaller area (Phnom Penh only)
-docker run -e PBF_URL=https://download.geofabrik.de/asia/cambodia/phnom-penh-latest.osm.pbf ...
-```
-
-## Data Import Process
-
-⚠️ **Important**: The first startup will take a significant amount of time (30-60 minutes) as it:
-
-1. Downloads the Cambodia OSM data (~50MB)
-2. Imports the data into PostgreSQL
-3. Builds search indexes
-4. Starts the Nominatim API server
-
-**Monitor the progress:**
-```bash
-# Check container logs
-docker logs -f cambodia-geocoding-api
-
-# Or with docker-compose
-docker-compose logs -f
-```
-
-## Performance & Resources
-
-### System Requirements
-- **RAM**: Minimum 2GB, recommended 4GB+
-- **Storage**: ~2GB for Cambodia data + indexes
-- **CPU**: 2+ cores recommended for initial import
-
-## Troubleshooting
-
-### Container Won't Start
-```bash
-# Check logs
-docker logs cambodia-geocoding-api
-
-# Common issues:
-# - Insufficient memory
-# - Network issues downloading OSM data
-# - Port 8080 already in use
-```
-
-### API Returns No Results
-- Ensure data import completed successfully
-- Check if searching within Cambodia boundaries
-- Verify coordinates are in correct format (decimal degrees)
-
-### Performance Issues
-- Increase container memory allocation
-- Use SSD storage for better I/O performance
-- Consider using smaller regional extracts
-
-## API Documentation
-
-For complete API documentation, visit:
-- **Nominatim API docs**: https://nominatim.org/release-docs/latest/api/Overview/
-- **Search parameters**: https://nominatim.org/release-docs/latest/api/Search/
-- **Reverse parameters**: https://nominatim.org/release-docs/latest/api/Reverse/
-
-## Contributing
-
-1. Fork the repository
-2. Create your feature branch
-3. Commit your changes
-4. Push to the branch
-5. Create a Pull Request
-
-## License
-
-This project uses:
-- **Nominatim**: Licensed under GPL v2
-- **OSM Data**: © OpenStreetMap contributors, ODbL license
-- **mediagis/nominatim**: MIT License
-
-## Support
-
-- **Issues**: Create an issue in this repository
-- **OSM Data**: Check [Geofabrik](https://download.geofabrik.de/asia/cambodia.html) for data updates
-- **Nominatim**: See [official documentation](https://nominatim.org/)
-
----
-
-**Note**: This server is configured specifically for Cambodia. For other countries or regions, modify the `PBF_URL` environment variable to point to the appropriate OSM extract.
+1.  Connect your Coolify instance to your GitHub account.
+2.  Create a new "Application" in Coolify.
+3.  Select this repository.
+4.  Coolify will automatically detect the `Dockerfile` and build and deploy the application for you.
+5.  Coolify will assign a public URL to your running application.
